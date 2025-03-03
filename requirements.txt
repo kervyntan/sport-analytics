@@ -1,0 +1,4 @@
+understat==0.1.12
+django==4.2.19
+django_rest_framework==0.1.0
+djangorestframework==3.15.2
