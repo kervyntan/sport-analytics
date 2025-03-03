@@ -16,8 +16,16 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
+from ninja import NinjaAPI
+from sports_api.routes.understat.api import router as understat_router
+
+api = NinjaAPI()
+
+api.add_router("understat/", understat_router)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("api-auth/", include("rest_framework.urls")),
+    path("api/", api.urls),
 ]
