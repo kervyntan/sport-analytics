@@ -1,5 +1,6 @@
 from ninja import Schema
 from typing import Optional
+from datetime import datetime
 
 
 class UnderstatPlayerSchema(Schema):
@@ -61,3 +62,36 @@ class UnderstatPlayerUpdateSchema(Schema):
     npxG: Optional[float] = None
     xGChain: Optional[float] = None
     xGBuildup: Optional[float] = None
+
+
+class UnderstatTeamResultSchema(Schema):
+    id: int
+    isResult: bool
+    side: str
+    h: dict
+    a: dict
+    goals: dict
+    xG: dict
+    datetime: datetime
+    forecast: dict
+    result: str
+    
+class InternalUnderstatTeamResultSchema(Schema):
+    id: int
+    isResult: bool
+    side: str
+    h_id: str
+    h_title: str
+    h_short_title: str
+    a_id: str
+    a_title: str
+    a_short_title: str
+    goals_a: int
+    goals_h: int
+    xG_a: int
+    xG_h: int
+    forecast_w: float
+    forecast_d: float
+    forecast_l: float
+    datetime: datetime
+    result: str
