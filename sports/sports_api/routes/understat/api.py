@@ -6,9 +6,14 @@ from ninja import Router
 from understat import Understat
 from asgiref.sync import sync_to_async
 
-from sports_api.database.models import UnderstatTeamResult, UnderstatTeamSituation
+from sports_api.database.models import (
+    UnderstatTeamFormationStats,
+    UnderstatTeamResult,
+    UnderstatTeamSituation,
+)
 from sports_api.helpers.mappers import (
     map_understat_team_result_to_internal,
+    map_understat_team_stat_to_formation,
     map_understat_team_stat_to_situation,
 )
 from sports_api.helpers.sort import sort_by_datetime_desc
@@ -65,7 +70,6 @@ async def get_team_results(request):
         )
 
         sorted_team_results = sort_by_datetime_desc(team_results)
-        # print(json.dumps(sorted_team_results))
 
         mapped_team_results = map_understat_team_result_to_internal(
             sorted_team_results, year
@@ -94,16 +98,24 @@ async def get_team_stats(request):
         understat = Understat(session)
         team_stats = await understat.get_team_stats(team_name=team_title, season=year)
 
-        # print(json.dumps(sorted_team_results))
         team_situations = map_understat_team_stat_to_situation(
             team_stats, year, team_title
         )
 
-        for team_situation in team_situations:
-            public_id = team_situation.get("public_id")
+        team_formations = map_understat_team_stat_to_formation(
+            team_stats, year, team_title
+        )
 
+        for team_situation in team_situations:
             await sync_to_async(UnderstatTeamSituation.objects.update_or_create)(
-                public_id=public_id,
+                public_id=team_situation.get("public_id"),
                 defaults=team_situation,
             )
+
+        for team_formation in team_formations:
+            await sync_to_async(UnderstatTeamFormationStats.objects.update_or_create)(
+                public_id=team_formation.get("public_id"),
+                defaults=team_formation,
+            )
+
         return team_stats

@@ -1,14 +1,17 @@
 from datetime import datetime
 from typing import List
 from sports_api.routes.understat.schemas.team_schema import (
+    InternalUnderstatTeamFormationSchema,
     InternalUnderstatTeamResultSchema,
     InternalUnderstatTeamSituationSchema,
     UnderstatTeamResultSchema,
     UnderstatTeamStatsSchema,
 )
 
+
 def create_public_id(season: int, team_title: str, key: str):
     return team_title + "-" + str(season) + "-" + key
+
 
 def map_understat_team_result_to_internal(
     team_results: UnderstatTeamResultSchema, season: int
@@ -47,26 +50,58 @@ def map_understat_team_stat_to_situation(
 ) -> List[InternalUnderstatTeamSituationSchema]:
     mapped_results = []
     team_situation = team_stats["situation"]
-    for team_situation_key in team_situation: # Type of UnderstatTeamSituationEnum
+    for team_situation_key in team_situation:  # Type of UnderstatTeamSituationEnum
         team_stat = team_situation[team_situation_key]
         team_shots = team_stat["shots"]
         team_goals = team_stat["goals"]
         against_shots = team_stat["against"]["shots"]
         against_goals = team_stat["against"]["goals"]
         result: InternalUnderstatTeamSituationSchema = {
-                "public_id": create_public_id(season, team_title, team_situation_key),
-                "team": team_title,
-                "source": team_situation_key,
-                "shots": team_shots,
-                "goals": team_goals,
-                "xG": team_stat["xG"],
-                "against_shots": against_shots,
-                "against_goals": against_goals,
-                "against_xG":team_stat["against"]["xG"],
-                "percent_shots_made": (float(team_goals) / float(team_shots)) * 100.0,
-                "percent_against_shots_made": (float(against_goals) / float(against_shots)) * 100.0,
+            "public_id": create_public_id(season, team_title, team_situation_key),
+            "team": team_title,
+            "source": team_situation_key,
+            "shots": team_shots,
+            "goals": team_goals,
+            "xG": team_stat["xG"],
+            "against_shots": against_shots,
+            "against_goals": against_goals,
+            "against_xG": team_stat["against"]["xG"],
+            "percent_shots_made": (float(team_goals) / float(team_shots)) * 100.0,
+            "percent_against_shots_made": (float(against_goals) / float(against_shots))
+            * 100.0,
         }
-        
+
+        mapped_results.append(result)
+
+    return mapped_results
+
+
+def map_understat_team_stat_to_formation(
+    team_stats: UnderstatTeamStatsSchema, season: int, team_title: str
+) -> List[InternalUnderstatTeamFormationSchema]:
+    mapped_results = []
+    team_formation = team_stats["formation"]
+    for team_formation_key in team_formation:  # Type of UnderstatTeamSituationEnum
+        team_formation_data = team_formation[team_formation_key]
+        team_shots = team_formation_data["shots"]
+        team_goals = team_formation_data["goals"]
+        against_shots = team_formation_data["against"]["shots"]
+        against_goals = team_formation_data["against"]["goals"]
+        result: InternalUnderstatTeamSituationSchema = {
+            "public_id": create_public_id(season, team_title, team_formation_key),
+            "time_spent": team_formation_data["time"],
+            "team": team_title,
+            "source": team_formation_key,
+            "shots": team_shots,
+            "goals": team_goals,
+            "xG": team_formation_data["xG"],
+            "against_shots": against_shots,
+            "against_goals": against_goals,
+            "against_xG": team_formation_data["against"]["xG"],
+            "percent_shots_made": (float(team_goals) / float(team_shots)) * 100.0,
+            "percent_against_shots_made": (float(against_goals) / float(against_shots))
+            * 100.0,
+        }
 
         mapped_results.append(result)
 

@@ -2,7 +2,10 @@ from datetime import datetime
 from typing import Dict
 from ninja import Schema
 
-from sports_api.constants.understat_enum import UnderstatTeamSituationEnum
+from sports_api.constants.understat_enum import (
+    UnderstatFormationEnum,
+    UnderstatTeamSituationEnum,
+)
 
 
 class UnderstatTeamResultSchema(Schema):
@@ -52,11 +55,20 @@ class UnderstatTeamResultSituationSchema(Schema):
     against: UnderstatTeamResultSituationAgainstSchema
 
 
+class UnderstatTeamFormationSchema(Schema):
+    stat: str
+    time: int
+    shots: int
+    goals: int
+    xG: float
+    against: UnderstatTeamResultSituationAgainstSchema
+
+
 class UnderstatTeamStatsSchema(Schema):
-    situation: Dict[
-        UnderstatTeamSituationEnum, UnderstatTeamResultSituationAgainstSchema
-    ]
-    
+    situation: Dict[UnderstatTeamSituationEnum, UnderstatTeamResultSituationSchema]
+    formation: Dict[UnderstatFormationEnum, UnderstatTeamFormationSchema]
+
+
 class InternalUnderstatTeamSituationSchema(Schema):
     team: str
     source: str
@@ -69,3 +81,16 @@ class InternalUnderstatTeamSituationSchema(Schema):
     percent_shots_made: float
     percent_against_shots_made: float
 
+
+class InternalUnderstatTeamFormationSchema(Schema):
+    team: str
+    source: str
+    time_spent: int
+    shots: int
+    goals: int
+    xG: float
+    against_shots: int
+    against_goals: int
+    against_xG: float
+    percent_shots_made: float
+    percent_against_shots_made: float

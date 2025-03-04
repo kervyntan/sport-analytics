@@ -121,3 +121,17 @@ class UnderstatTeamSituation(BaseModel):
     
     def __str__(self):
         return f"{self.team}, {self.source}"
+class UnderstatTeamFormationStats(BaseModel):
+    source = models.CharField(max_length=20)
+    time_spent = models.IntegerField()
+    shots = models.IntegerField()
+    goals = models.IntegerField()
+    xG = models.FloatField()
+    against_shots = models.IntegerField()
+    against_goals = models.IntegerField()
+    against_xG = models.FloatField()
+    percent_shots_made = models.FloatField()
+    percent_against_shots_made = models.FloatField()
+    
+    def __str__(self):
+        return f"{self.team}, {self.source}"
