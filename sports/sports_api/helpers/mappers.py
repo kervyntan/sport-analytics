@@ -14,6 +14,8 @@ def create_public_id(season: int, team_title: str, key: str):
 
 
 def calculate_percent_goals(numerator: int, denominator: int):
+    if denominator == 0:
+        return 0.0
     return (float(numerator) / float(denominator)) * 100.0
 
 
@@ -70,6 +72,7 @@ def map_understat_team_stat_to_situation(
         against_goals = team_stat["against"]["goals"]
         result: InternalUnderstatTeamSituationSchema = {
             "public_id": create_public_id(season, team_title, team_situation_key),
+            "season": season,
             "team": team_title,
             "source": team_situation_key,
             "shots": team_shots,
@@ -116,6 +119,7 @@ def map_understat_team_stat_to_formation(
         against_goals = team_formation_data["against"]["goals"]
         result: InternalUnderstatTeamSituationSchema = {
             "public_id": create_public_id(season, team_title, team_formation_key),
+            "season": season,
             "time_spent": team_formation_data["time"],
             "team": team_title,
             "source": team_formation_key,
