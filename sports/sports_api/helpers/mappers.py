@@ -13,6 +13,10 @@ def create_public_id(season: int, team_title: str, key: str):
     return team_title + "-" + str(season) + "-" + key
 
 
+def calculate_percent_goals(numerator: int, denominator: int):
+    return (float(numerator) / float(denominator)) * 100.0
+
+
 def map_understat_team_result_to_internal(
     team_results: UnderstatTeamResultSchema, season: int
 ) -> List[InternalUnderstatTeamResultSchema]:
@@ -50,6 +54,14 @@ def map_understat_team_stat_to_situation(
 ) -> List[InternalUnderstatTeamSituationSchema]:
     mapped_results = []
     team_situation = team_stats["situation"]
+
+    total_goals_scored = 0
+    total_against_goals_scored = 0
+    for team_situation_key in team_situation:
+        team_stat = team_situation[team_situation_key]
+        total_goals_scored += team_stat["goals"]
+        total_against_goals_scored += team_stat["against"]["goals"]
+
     for team_situation_key in team_situation:  # Type of UnderstatTeamSituationEnum
         team_stat = team_situation[team_situation_key]
         team_shots = team_stat["shots"]
@@ -66,9 +78,16 @@ def map_understat_team_stat_to_situation(
             "against_shots": against_shots,
             "against_goals": against_goals,
             "against_xG": team_stat["against"]["xG"],
-            "percent_shots_made": (float(team_goals) / float(team_shots)) * 100.0,
-            "percent_against_shots_made": (float(against_goals) / float(against_shots))
-            * 100.0,
+            "percent_shots_made": calculate_percent_goals(team_goals, team_shots),
+            "percent_shots_made_across_all_goals": calculate_percent_goals(
+                team_goals, total_goals_scored
+            ),
+            "percent_against_shots_made": calculate_percent_goals(
+                against_goals, against_shots
+            ),
+            "percent_against_shots_made_across_all_goals": calculate_percent_goals(
+                against_goals, total_against_goals_scored
+            ),
         }
 
         mapped_results.append(result)
@@ -81,6 +100,14 @@ def map_understat_team_stat_to_formation(
 ) -> List[InternalUnderstatTeamFormationSchema]:
     mapped_results = []
     team_formation = team_stats["formation"]
+
+    total_goals_scored = 0
+    total_against_goals_scored = 0
+    for team_situation_key in team_formation:
+        team_formation_data = team_formation[team_situation_key]
+        total_goals_scored += team_formation_data["goals"]
+        total_against_goals_scored += team_formation_data["against"]["goals"]
+
     for team_formation_key in team_formation:  # Type of UnderstatTeamSituationEnum
         team_formation_data = team_formation[team_formation_key]
         team_shots = team_formation_data["shots"]
@@ -98,9 +125,16 @@ def map_understat_team_stat_to_formation(
             "against_shots": against_shots,
             "against_goals": against_goals,
             "against_xG": team_formation_data["against"]["xG"],
-            "percent_shots_made": (float(team_goals) / float(team_shots)) * 100.0,
-            "percent_against_shots_made": (float(against_goals) / float(against_shots))
-            * 100.0,
+            "percent_shots_made": calculate_percent_goals(team_goals, team_shots),
+            "percent_shots_made_across_all_goals": calculate_percent_goals(
+                team_goals, total_goals_scored
+            ),
+            "percent_against_shots_made": calculate_percent_goals(
+                against_goals, against_shots
+            ),
+            "percent_against_shots_made_across_all_goals": calculate_percent_goals(
+                against_goals, total_against_goals_scored
+            ),
         }
 
         mapped_results.append(result)

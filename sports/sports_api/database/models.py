@@ -117,7 +117,9 @@ class UnderstatTeamSituation(BaseModel):
     against_goals = models.IntegerField()
     against_xG = models.FloatField()
     percent_shots_made = models.FloatField()
+    percent_shots_made_across_all_goals = models.FloatField(null=True)
     percent_against_shots_made = models.FloatField()
+    percent_against_shots_made_across_all_goals = models.FloatField(null=True)
     
     def __str__(self):
         return f"{self.team}, {self.source}"
@@ -131,7 +133,9 @@ class UnderstatTeamFormationStats(BaseModel):
     against_goals = models.IntegerField()
     against_xG = models.FloatField()
     percent_shots_made = models.FloatField()
+    percent_shots_made_across_all_goals = models.FloatField(null=True)
     percent_against_shots_made = models.FloatField()
+    percent_against_shots_made_across_all_goals = models.FloatField(null=True)
     
     def __str__(self):
         return f"{self.team}, {self.source}"
