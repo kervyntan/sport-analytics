@@ -44,21 +44,25 @@ def map_understat_team_stat_to_situation(
     team_stats: UnderstatTeamStatsSchema, team_title: str
 ) -> List[InternalUnderstatTeamSituationSchema]:
     mapped_results = []
-    team_situation = team_stats.situation
+    team_situation = team_stats["situation"]
     for team_situation_key in team_situation: # Type of UnderstatTeamSituationEnum
         team_stat = team_situation[team_situation_key]
+        team_shots = team_stat["shots"]
+        team_goals = team_stat["goals"]
+        against_shots = team_stat["against"]["shots"]
+        against_goals = team_stat["against"]["goals"]
         result: InternalUnderstatTeamSituationSchema = InternalUnderstatTeamSituationSchema(
-                public_id=team_stat.id,
+                public_id=team_stat["id"],
                 team=team_title,
                 source=team_situation_key,
-                shots=team_stat.shots,
-                goals=team_stat.goals,
-                xG=team_stat.xG,
-                against_shots=team_stat.against.shots,
-                against_goals=team_stat.against.goals,
-                against_xG=team_stat.against.xG,
-                percent_shots_made=float(team_stat.goals) / float(team_stat.shots),
-                percent_against_shots_made=float(team_stat.against.goals) / float(team_stat.against.shots),
+                shots=team_shots,
+                goals=team_goals,
+                xG=team_stat["xG"],
+                against_shots=against_shots,
+                against_goals=against_goals,
+                against_xG=team_stat["against"]["xG"],
+                percent_shots_made=float(team_goals) / float(team_shots),
+                percent_against_shots_made=float(against_goals) / float(against_shots),
             )
         
 
