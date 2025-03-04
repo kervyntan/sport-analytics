@@ -19,10 +19,12 @@ from django.contrib import admin
 from django.urls import include, path
 from ninja import NinjaAPI
 from sports_api.routes.understat.api import router as understat_router
+from sports_api.routes.internal.api import router as internal_router
 
 api = NinjaAPI()
 
 api.add_router("understat/", understat_router)
+api.add_router("internal/", internal_router)
 
 urlpatterns = [
     path("admin/", admin.site.urls),

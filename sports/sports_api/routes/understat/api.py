@@ -95,7 +95,9 @@ async def get_team_stats(request):
         team_stats = await understat.get_team_stats(team_name=team_title, season=year)
 
         # print(json.dumps(sorted_team_results))
-        team_situations = map_understat_team_stat_to_situation(team_stats, year, team_title)
+        team_situations = map_understat_team_stat_to_situation(
+            team_stats, year, team_title
+        )
 
         for team_situation in team_situations:
             public_id = team_situation.get("public_id")
