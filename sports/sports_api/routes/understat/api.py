@@ -64,10 +64,10 @@ async def get_team_results(request):
         sorted_team_results = sort_by_datetime_desc(team_results)
         # print(json.dumps(sorted_team_results))
 
-        mapped_team_results = map_understat_team_result_to_internal(sorted_team_results)
+        mapped_team_results = map_understat_team_result_to_internal(sorted_team_results, year)
         for data in mapped_team_results:
             public_id = data.get("public_id")
-            # Use Django's update_or_create method
+
             await sync_to_async(UnderstatTeamResult.objects.update_or_create)(
                 public_id=public_id,
                 defaults=data,

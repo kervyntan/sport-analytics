@@ -32,6 +32,7 @@ class UnderstatPlayer(models.Model):
 
 class UnderstatTeamResult(models.Model):
     id = models.AutoField(primary_key=True)
+    season = models.IntegerField(null=True)
     public_id = models.IntegerField(unique=True)
     is_result = models.BooleanField()
     side = models.CharField(max_length=1)
@@ -53,3 +54,19 @@ class UnderstatTeamResult(models.Model):
 
     def __str__(self):
         return f"{self.h_title} vs {self.a_title} - {self.result}"
+    
+class UnderstatTeamSituation(models.Model):
+    id = models.AutoField(primary_key=True)
+    team = models.CharField(max_length=50)
+    source = models.CharField(max_length=20)
+    shots = models.IntegerField()
+    goals = models.IntegerField()
+    xG = models.IntegerField()
+    against_shots = models.IntegerField()
+    against_goals = models.IntegerField()
+    against_xG = models.IntegerField()
+    percent_shots_made = models.FloatField()
+    percent_against_shots_made = models.FloatField()
+    
+    def __str__(self):
+        return f"{self.team}, {self.source}"

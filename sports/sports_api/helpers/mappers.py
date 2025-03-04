@@ -7,11 +7,13 @@ from sports_api.routes.understat.schema import (
 
 def map_understat_team_result_to_internal(
     team_results: UnderstatTeamResultSchema,
+    season: int
 ) -> InternalUnderstatTeamResultSchema:
     mapped_results = []
     for team_result in team_results:
         result: InternalUnderstatTeamResultSchema = {
             "public_id": team_result["id"],
+            "season": season,
             "is_result": team_result["isResult"],
             "side": team_result["side"],
             "h_id": team_result["h"]["id"],
