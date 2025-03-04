@@ -1,18 +1,21 @@
 from datetime import datetime
-from sports_api.routes.understat.schema import (
+from typing import List
+from sports_api.routes.understat.schemas.team_schema import (
     InternalUnderstatTeamResultSchema,
+    InternalUnderstatTeamSituationSchema,
     UnderstatTeamResultSchema,
+    UnderstatTeamStatsSchema,
 )
 
 
 def map_understat_team_result_to_internal(
-    team_results: UnderstatTeamResultSchema,
-    season: int
-) -> InternalUnderstatTeamResultSchema:
+    team_results: UnderstatTeamResultSchema, season: int
+) -> List[InternalUnderstatTeamResultSchema]:
     mapped_results = []
     for team_result in team_results:
         result: InternalUnderstatTeamResultSchema = {
             "public_id": team_result["id"],
+            "team": team_result["h"]["title"],
             "season": season,
             "is_result": team_result["isResult"],
             "side": team_result["side"],
@@ -32,6 +35,33 @@ def map_understat_team_result_to_internal(
             "forecast_l": team_result["forecast"]["l"],
             "result": team_result["result"],
         }
+        mapped_results.append(result)
+
+    return mapped_results
+
+
+def map_understat_team_stat_to_situation(
+    team_stats: UnderstatTeamStatsSchema, team_title: str
+) -> List[InternalUnderstatTeamSituationSchema]:
+    mapped_results = []
+    team_situation = team_stats.situation
+    for team_situation_key in team_situation: # Type of UnderstatTeamSituationEnum
+        team_stat = team_situation[team_situation_key]
+        result: InternalUnderstatTeamSituationSchema = InternalUnderstatTeamSituationSchema(
+                public_id=team_stat.id,
+                team=team_title,
+                source=team_situation_key,
+                shots=team_stat.shots,
+                goals=team_stat.goals,
+                xG=team_stat.xG,
+                against_shots=team_stat.against.shots,
+                against_goals=team_stat.against.goals,
+                against_xG=team_stat.against.xG,
+                percent_shots_made=float(team_stat.goals) / float(team_stat.shots),
+                percent_against_shots_made=float(team_stat.against.goals) / float(team_stat.against.shots),
+            )
+        
+
         mapped_results.append(result)
 
     return mapped_results

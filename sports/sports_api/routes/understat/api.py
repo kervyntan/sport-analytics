@@ -6,13 +6,13 @@ from ninja import Router
 from understat import Understat
 from asgiref.sync import sync_to_async
 
-from sports_api.database.models import UnderstatTeamResult
-from sports_api.helpers.mappers import map_understat_team_result_to_internal
+from sports_api.database.models import UnderstatTeamResult, UnderstatTeamSituation
+from sports_api.helpers.mappers import map_understat_team_result_to_internal, map_understat_team_stat_to_situation
 from sports_api.helpers.sort import sort_by_datetime_desc
-from sports_api.routes.understat.schema import (
+from sports_api.routes.understat.schemas.player_schema import (
     UnderstatPlayerSchema,
-    UnderstatTeamResultSchema,
 )
+from sports_api.routes.understat.schemas.team_schema import UnderstatTeamResultSchema
 
 
 # Create a custom SSL context
@@ -64,7 +64,9 @@ async def get_team_results(request):
         sorted_team_results = sort_by_datetime_desc(team_results)
         # print(json.dumps(sorted_team_results))
 
-        mapped_team_results = map_understat_team_result_to_internal(sorted_team_results, year)
+        mapped_team_results = map_understat_team_result_to_internal(
+            sorted_team_results, year
+        )
         for data in mapped_team_results:
             public_id = data.get("public_id")
 
@@ -90,4 +92,13 @@ async def get_team_stats(request):
         team_stats = await understat.get_team_stats(team_name=team_title, season=year)
 
         # print(json.dumps(sorted_team_results))
+        team_situations = map_understat_team_stat_to_situation(team_stats, team_title)
+        
+        for team_situation in team_situations:
+            public_id = team_situation.get("public_id")
+
+            await sync_to_async(UnderstatTeamSituation.objects.update_or_create)(
+                public_id=public_id,
+                defaults=team_situation,
+            )
         return team_stats

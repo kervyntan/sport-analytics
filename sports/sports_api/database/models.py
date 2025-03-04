@@ -1,8 +1,64 @@
+import uuid
 from django.db import models
 
+class BaseModel(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    public_id = models.IntegerField(editable=False)
+    season = models.IntegerField(default=2025)
+    team = models.CharField(max_length=50)
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_updated = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False)
 
-class UnderstatPlayer(models.Model):
-    player_id = models.CharField(max_length=20, primary_key=True)
+    class Meta:
+        abstract = True
+        ordering = ["-date_created"]
+
+    def save(self, *args, **kwargs):
+        if not self.public_id:
+            self.id = uuid.uuid4()
+            self.public_id = self.generate_unique_public_id(self.id)
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def prepare_for_bulk_create(cls, instances):
+        for instance in instances:
+            if not instance.id:
+                instance.id = uuid.uuid4()
+            if not instance.public_id:
+                instance.public_id = cls.generate_static_public_id(instance.id)
+        return instances
+
+    @classmethod
+    def prepare_for_bulk_create_dicts(cls, instances: dict):
+        for instance in instances:
+            if "id" not in instance.keys():
+                instance["id"] = uuid.uuid4()
+            if "public_id" not in instance.keys():
+                instance["public_id"] = cls.generate_static_public_id(instance["id"])
+        return instances
+
+    @staticmethod
+    def generate_static_public_id(id: uuid.UUID) -> str:
+        return str(id.hex)[:8]
+
+    def generate_unique_public_id(self, id: uuid.UUID) -> str:
+        return str(id.hex)[:8]
+
+    def soft_delete(self):
+
+        self.is_deleted = True
+        self.save()
+
+    def hard_delete(self):
+        super().delete()
+
+    def __str__(self):
+        return self.public_id
+
+class UnderstatPlayer(BaseModel):
+    player_id = models.CharField(max_length=20, unique=True)
     player_name = models.CharField(max_length=255)
     games = models.IntegerField()
     time = models.IntegerField(help_text="Playing time in minutes")
@@ -30,10 +86,7 @@ class UnderstatPlayer(models.Model):
         ordering = ["-goals", "player_name"]
 
 
-class UnderstatTeamResult(models.Model):
-    id = models.AutoField(primary_key=True)
-    season = models.IntegerField(null=True)
-    public_id = models.IntegerField(unique=True)
+class UnderstatTeamResult(BaseModel):
     is_result = models.BooleanField()
     side = models.CharField(max_length=1)
     h_id = models.CharField(max_length=10)
@@ -55,9 +108,7 @@ class UnderstatTeamResult(models.Model):
     def __str__(self):
         return f"{self.h_title} vs {self.a_title} - {self.result}"
     
-class UnderstatTeamSituation(models.Model):
-    id = models.AutoField(primary_key=True)
-    team = models.CharField(max_length=50)
+class UnderstatTeamSituation(BaseModel):
     source = models.CharField(max_length=20)
     shots = models.IntegerField()
     goals = models.IntegerField()
