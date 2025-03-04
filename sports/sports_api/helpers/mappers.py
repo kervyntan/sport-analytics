@@ -7,6 +7,8 @@ from sports_api.routes.understat.schemas.team_schema import (
     UnderstatTeamStatsSchema,
 )
 
+def create_public_id(season: int, team_title: str, key: str):
+    return team_title + "-" + str(season) + "-" + key
 
 def map_understat_team_result_to_internal(
     team_results: UnderstatTeamResultSchema, season: int
@@ -14,7 +16,7 @@ def map_understat_team_result_to_internal(
     mapped_results = []
     for team_result in team_results:
         result: InternalUnderstatTeamResultSchema = {
-            "public_id": team_result["id"],
+            "public_id": str(team_result["id"]),
             "team": team_result["h"]["title"],
             "season": season,
             "is_result": team_result["isResult"],
@@ -41,7 +43,7 @@ def map_understat_team_result_to_internal(
 
 
 def map_understat_team_stat_to_situation(
-    team_stats: UnderstatTeamStatsSchema, team_title: str
+    team_stats: UnderstatTeamStatsSchema, season: int, team_title: str
 ) -> List[InternalUnderstatTeamSituationSchema]:
     mapped_results = []
     team_situation = team_stats["situation"]
@@ -51,19 +53,19 @@ def map_understat_team_stat_to_situation(
         team_goals = team_stat["goals"]
         against_shots = team_stat["against"]["shots"]
         against_goals = team_stat["against"]["goals"]
-        result: InternalUnderstatTeamSituationSchema = InternalUnderstatTeamSituationSchema(
-                public_id=team_stat["id"],
-                team=team_title,
-                source=team_situation_key,
-                shots=team_shots,
-                goals=team_goals,
-                xG=team_stat["xG"],
-                against_shots=against_shots,
-                against_goals=against_goals,
-                against_xG=team_stat["against"]["xG"],
-                percent_shots_made=float(team_goals) / float(team_shots),
-                percent_against_shots_made=float(against_goals) / float(against_shots),
-            )
+        result: InternalUnderstatTeamSituationSchema = {
+                "public_id": create_public_id(season, team_title, team_situation_key),
+                "team": team_title,
+                "source": team_situation_key,
+                "shots": team_shots,
+                "goals": team_goals,
+                "xG": team_stat["xG"],
+                "against_shots": against_shots,
+                "against_goals": against_goals,
+                "against_xG":team_stat["against"]["xG"],
+                "percent_shots_made": float(team_goals) / float(team_shots),
+                "percent_against_shots_made":float(against_goals) / float(against_shots),
+        }
         
 
         mapped_results.append(result)

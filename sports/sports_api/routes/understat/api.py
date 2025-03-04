@@ -7,7 +7,10 @@ from understat import Understat
 from asgiref.sync import sync_to_async
 
 from sports_api.database.models import UnderstatTeamResult, UnderstatTeamSituation
-from sports_api.helpers.mappers import map_understat_team_result_to_internal, map_understat_team_stat_to_situation
+from sports_api.helpers.mappers import (
+    map_understat_team_result_to_internal,
+    map_understat_team_stat_to_situation,
+)
 from sports_api.helpers.sort import sort_by_datetime_desc
 from sports_api.routes.understat.schemas.player_schema import (
     UnderstatPlayerSchema,
@@ -92,8 +95,8 @@ async def get_team_stats(request):
         team_stats = await understat.get_team_stats(team_name=team_title, season=year)
 
         # print(json.dumps(sorted_team_results))
-        team_situations = map_understat_team_stat_to_situation(team_stats, team_title)
-        
+        team_situations = map_understat_team_stat_to_situation(team_stats, year, team_title)
+
         for team_situation in team_situations:
             public_id = team_situation.get("public_id")
 

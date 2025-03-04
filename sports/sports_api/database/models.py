@@ -3,7 +3,7 @@ from django.db import models
 
 class BaseModel(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    public_id = models.IntegerField(editable=False)
+    public_id = models.CharField(max_length=50, null=True, editable=False) # Null if they don't provide id
     season = models.IntegerField(default=2025)
     team = models.CharField(max_length=50)
     date_created = models.DateTimeField(auto_now_add=True)
@@ -112,10 +112,10 @@ class UnderstatTeamSituation(BaseModel):
     source = models.CharField(max_length=20)
     shots = models.IntegerField()
     goals = models.IntegerField()
-    xG = models.IntegerField()
+    xG = models.FloatField()
     against_shots = models.IntegerField()
     against_goals = models.IntegerField()
-    against_xG = models.IntegerField()
+    against_xG = models.FloatField()
     percent_shots_made = models.FloatField()
     percent_against_shots_made = models.FloatField()
     

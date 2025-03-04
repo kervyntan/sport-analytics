@@ -58,15 +58,14 @@ class UnderstatTeamStatsSchema(Schema):
     ]
     
 class InternalUnderstatTeamSituationSchema(Schema):
-    public_id: int
     team: str
     source: str
     shots: int
     goals: int
-    xG: int
+    xG: float
     against_shots: int
     against_goals: int
-    against_xG: int
+    against_xG: float
     percent_shots_made: float
     percent_against_shots_made: float
 
