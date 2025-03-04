@@ -11,7 +11,7 @@ def map_understat_team_result_to_internal(
     mapped_results = []
     for team_result in team_results:
         result: InternalUnderstatTeamResultSchema = {
-            "id": team_result["id"],
+            "public_id": team_result["id"],
             "is_result": team_result["isResult"],
             "side": team_result["side"],
             "h_id": team_result["h"]["id"],

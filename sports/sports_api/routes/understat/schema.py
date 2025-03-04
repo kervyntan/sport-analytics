@@ -77,7 +77,7 @@ class UnderstatTeamResultSchema(Schema):
     result: str
     
 class InternalUnderstatTeamResultSchema(Schema):
-    id: int
+    public_id: int
     isResult: bool
     side: str
     h_id: str

@@ -32,6 +32,7 @@ class UnderstatPlayer(models.Model):
 
 class UnderstatTeamResult(models.Model):
     id = models.AutoField(primary_key=True)
+    public_id = models.IntegerField(unique=True)
     is_result = models.BooleanField()
     side = models.CharField(max_length=1)
     h_id = models.CharField(max_length=10)

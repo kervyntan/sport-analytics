@@ -9,7 +9,10 @@ from asgiref.sync import sync_to_async
 from sports_api.database.models import UnderstatTeamResult
 from sports_api.helpers.mappers import map_understat_team_result_to_internal
 from sports_api.helpers.sort import sort_by_datetime_desc
-from sports_api.routes.understat.schema import UnderstatPlayerSchema
+from sports_api.routes.understat.schema import (
+    UnderstatPlayerSchema,
+    UnderstatTeamResultSchema,
+)
 
 
 # Create a custom SSL context
@@ -21,7 +24,7 @@ router = Router()
 
 
 @router.get("/player", response=List[UnderstatPlayerSchema])
-async def getLeaguePlayer(request):
+async def get_league_player(request):
 
     async with aiohttp.ClientSession(
         connector=aiohttp.TCPConnector(ssl=ssl_context)
@@ -41,8 +44,8 @@ async def getLeaguePlayer(request):
         return player
 
 
-@router.get("/team-results")
-async def getTeamResults(request):
+@router.get("/team-results", response=List[UnderstatTeamResultSchema])
+async def get_team_results(request):
 
     async with aiohttp.ClientSession(
         connector=aiohttp.TCPConnector(ssl=ssl_context)
@@ -62,10 +65,29 @@ async def getTeamResults(request):
         # print(json.dumps(sorted_team_results))
 
         mapped_team_results = map_understat_team_result_to_internal(sorted_team_results)
-        mapped_team_results_instances = [
-            UnderstatTeamResult(**data) for data in mapped_team_results
-        ]
-        await sync_to_async(UnderstatTeamResult.objects.bulk_create)(
-            mapped_team_results_instances, unique_fields=["id"]
-        )
+        for data in mapped_team_results:
+            public_id = data.get("public_id")
+            # Use Django's update_or_create method
+            await sync_to_async(UnderstatTeamResult.objects.update_or_create)(
+                public_id=public_id,
+                defaults=data,
+            )
         return sorted_team_results
+
+
+@router.get("/team-stats")
+async def get_team_stats(request):
+
+    async with aiohttp.ClientSession(
+        connector=aiohttp.TCPConnector(ssl=ssl_context)
+    ) as session:
+        query_params = request.GET.dict()
+
+        team_title = query_params.get("team_title")
+        year = int(query_params.get("year"))
+
+        understat = Understat(session)
+        team_stats = await understat.get_team_stats(team_name=team_title, season=year)
+
+        # print(json.dumps(sorted_team_results))
+        return team_stats
