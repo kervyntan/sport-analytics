@@ -63,8 +63,8 @@ def map_understat_team_stat_to_situation(
                 "against_shots": against_shots,
                 "against_goals": against_goals,
                 "against_xG":team_stat["against"]["xG"],
-                "percent_shots_made": float(team_goals) / float(team_shots),
-                "percent_against_shots_made":float(against_goals) / float(against_shots),
+                "percent_shots_made": (float(team_goals) / float(team_shots)) * 100.0,
+                "percent_against_shots_made": (float(against_goals) / float(against_shots)) * 100.0,
         }
         
 
