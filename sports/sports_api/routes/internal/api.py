@@ -109,6 +109,7 @@ def get_team_players_stats(request):
 
         team_title = query_params.get("team_title")
         year = int(query_params.get("year"))
+        position = query_params.get("position")
         sort_by_goals = query_params.get("sort[goals]")
         sort_by_percent_shots_made = query_params.get("sort[percent_shots_made]")
         sort_by_xG = query_params.get("sort[xG]")
@@ -117,11 +118,9 @@ def get_team_players_stats(request):
 
         if sort_by_goals:
             sort_direction = "goals" if sort_by_goals.lower() == "asc" else "-goals"
-            data = list(
-                UnderstatTeamPlayerStats.objects.filter(season=year, team=team_title)
-                .order_by(sort_direction)
-                .values()
-            )
+            data = UnderstatTeamPlayerStats.objects.filter(
+                season=year, team=team_title
+            ).order_by(sort_direction)
 
         elif sort_by_percent_shots_made:
             sort_direction = (
@@ -129,25 +128,23 @@ def get_team_players_stats(request):
                 if sort_by_percent_shots_made.lower() == "asc"
                 else "-percent_shots_made_across_all_goals"
             )
-            data = list(
-                UnderstatTeamPlayerStats.objects.filter(season=year, team=team_title)
-                .order_by(sort_direction)
-                .values()
-            )
+            data = UnderstatTeamPlayerStats.objects.filter(
+                season=year, team=team_title
+            ).order_by(sort_direction)
+
         elif sort_by_percent_shots_made:
             sort_direction = "xG" if sort_by_xG.lower() == "asc" else "-xG"
-            data = list(
-                UnderstatTeamPlayerStats.objects.filter(season=year, team=team_title)
-                .order_by(sort_direction)
-                .values()
-            )
+            data = UnderstatTeamPlayerStats.objects.filter(
+                season=year, team=team_title
+            ).order_by(sort_direction)
 
         else:
-            data = list(
-                UnderstatTeamPlayerStats.objects.filter(
-                    season=year, team=team_title
-                ).values()
-            )
+            data = UnderstatTeamPlayerStats.objects.filter(season=year, team=team_title)
+        
+        if position:
+            data = data.filter(position=position)
+            
+        data = list(data.values())
 
         return JsonResponse(
             success_response(data, "Successfully retrieved team players stats")
