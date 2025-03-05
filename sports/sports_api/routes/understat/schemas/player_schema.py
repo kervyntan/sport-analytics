@@ -1,11 +1,34 @@
 from ninja import Schema
 from typing import Optional
-from datetime import datetime
 
 
 class UnderstatPlayerSchema(Schema):
     id: str
     player_name: str
+    games: str
+    time: str
+    goals: str
+    xG: str
+    assists: str
+    xA: str
+    shots: str
+    key_passes: str
+    yellow_cards: str
+    red_cards: str
+    position: str
+    team_title: str
+    npg: str
+    npxG: str
+    xGChain: str
+    xGBuildup: str
+
+
+class InternalUnderstatPlayerSchema(Schema):
+    id: str
+    public_id: str
+    player_name: str
+    lowercase_player_name: str
+    team: str
     games: int
     time: int
     goals: int
@@ -17,7 +40,6 @@ class UnderstatPlayerSchema(Schema):
     yellow_cards: int
     red_cards: int
     position: str
-    team_title: str
     npg: int
     npxG: float
     xGChain: float

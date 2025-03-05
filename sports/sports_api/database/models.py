@@ -139,3 +139,47 @@ class UnderstatTeamFormationStats(BaseModel):
     
     def __str__(self):
         return f"{self.team}, {self.source}"
+class UnderstatTeamTimingStats(BaseModel):
+    source = models.CharField(max_length=20)
+    shots = models.IntegerField()
+    goals = models.IntegerField()
+    xG = models.FloatField()
+    against_shots = models.IntegerField()
+    against_goals = models.IntegerField()
+    against_xG = models.FloatField()
+    percent_shots_made = models.FloatField()
+    percent_shots_made_across_all_goals = models.FloatField(null=True)
+    percent_against_shots_made = models.FloatField()
+    percent_against_shots_made_across_all_goals = models.FloatField(null=True)
+    
+    def __str__(self):
+        return f"{self.team}, {self.source}"
+
+class UnderstatTeamPlayerStats(BaseModel):
+    player_name = models.CharField(max_length=100)
+    lowercase_player_name = models.CharField(max_length=100)
+    games = models.IntegerField()
+    time = models.IntegerField()
+    goals = models.IntegerField()
+    xG = models.FloatField()
+    assists = models.IntegerField()
+    xA = models.FloatField()
+    shots = models.IntegerField()
+    key_passes = models.IntegerField()
+    yellow_cards = models.IntegerField()
+    red_cards = models.IntegerField()
+    position = models.CharField(max_length=50)
+    npg = models.IntegerField()  # Non-penalty goals
+    npxG = models.FloatField()   # Non-penalty expected goals
+    '''
+    Find all the possessions each player is involved in.
+    Find all the shots within those possessions.
+    Sum their xG (you might take the highest xG per possession, or you might treat the shots as dependent events, whatever floats your boat).
+    Assign that sum to each player, however involved they were.
+    '''
+    xGChain = models.FloatField()
+    xGBuildup = models.FloatField()
+
+    def __str__(self):
+        return f"{self.player_name} - {self.team}"
+

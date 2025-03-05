@@ -8,13 +8,17 @@ from asgiref.sync import sync_to_async
 
 from sports_api.database.models import (
     UnderstatTeamFormationStats,
+    UnderstatTeamPlayerStats,
     UnderstatTeamResult,
     UnderstatTeamSituation,
+    UnderstatTeamTimingStats,
 )
 from sports_api.helpers.mappers import (
+    map_understat_team_players_to_internal,
     map_understat_team_result_to_internal,
     map_understat_team_stat_to_formation,
     map_understat_team_stat_to_situation,
+    map_understat_team_stat_to_timing,
 )
 from sports_api.helpers.sort import sort_by_datetime_desc
 from sports_api.routes.understat.schemas.player_schema import (
@@ -106,6 +110,8 @@ async def get_team_stats(request):
             team_stats, year, team_title
         )
 
+        team_timings = map_understat_team_stat_to_timing(team_stats, year, team_title)
+
         for team_situation in team_situations:
             await sync_to_async(UnderstatTeamSituation.objects.update_or_create)(
                 public_id=team_situation.get("public_id"),
@@ -118,4 +124,35 @@ async def get_team_stats(request):
                 defaults=team_formation,
             )
 
+        for team_timing in team_timings:
+            await sync_to_async(UnderstatTeamTimingStats.objects.update_or_create)(
+                public_id=team_timing.get("public_id"), defaults=team_timing
+            )
+
         return team_stats
+
+
+@router.get("/team-players")
+async def get_team_players_stats(request):
+    async with aiohttp.ClientSession(
+        connector=aiohttp.TCPConnector(ssl=ssl_context)
+    ) as session:
+        query_params = request.GET.dict()
+
+        team_title = query_params.get("team_title")
+        year = int(query_params.get("year"))
+
+        understat = Understat(session)
+        team_players = await understat.get_team_players(
+            team_name=team_title, season=year
+        )
+        
+        mapped_team_players = map_understat_team_players_to_internal(team_players)
+        
+        for team_player in mapped_team_players:
+            await sync_to_async(UnderstatTeamPlayerStats.objects.update_or_create)(
+                public_id=team_player.get('public_id'),
+                defaults=team_player
+            )
+
+        return team_players

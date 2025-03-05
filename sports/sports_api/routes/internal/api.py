@@ -3,7 +3,9 @@ from ninja import Router
 
 from sports_api.database.models import (
     UnderstatTeamFormationStats,
+    UnderstatTeamPlayerStats,
     UnderstatTeamSituation,
+    UnderstatTeamTimingStats,
 )
 from sports_api.helpers.response import error_response, success_response
 
@@ -69,3 +71,62 @@ def get_team_formation(request):
         )
     except:
         return JsonResponse(error_response("Failed to retrieve team formation stats."))
+
+
+@router.get("/team-timing")
+def get_team_timing_stats(request):
+    try:
+        query_params = request.GET.dict()
+
+        team_title = query_params.get("team_title")
+        year = int(query_params.get("year"))
+        timing = query_params.get("timing", None)
+
+        if not timing:
+            data = list(
+                UnderstatTeamTimingStats.objects.filter(
+                    season=year, team=team_title
+                ).values()
+            )
+        else:
+            data = list(
+                UnderstatTeamTimingStats.objects.filter(
+                    season=year, team=team_title, source=timing
+                ).values()
+            )
+
+        return JsonResponse(
+            success_response(data, "Successfully retrieved team timing stats")
+        )
+    except:
+        return JsonResponse(error_response("Failed to retrieve team timing stats."))
+
+
+@router.get("/team-players")
+def get_team_players_stats(request):
+    try:
+        query_params = request.GET.dict()
+
+        team_title = query_params.get("team_title")
+        year = int(query_params.get("year"))
+        sort_by_goals = query_params.get("sort[goals]")
+        
+        if sort_by_goals:
+            sort_direction = "goals" if sort_by_goals.lower() == "asc" else "-goals"
+            data = list(
+                UnderstatTeamPlayerStats.objects.filter(
+                    season=year, team=team_title
+                ).order_by(sort_direction).values()
+            )
+        else:
+            data = list(
+                UnderstatTeamPlayerStats.objects.filter(
+                    season=year, team=team_title
+                ).values()
+            )
+
+        return JsonResponse(
+            success_response(data, "Successfully retrieved team players stats")
+        )
+    except:
+        return JsonResponse(error_response("Failed to retrieve team players stats."))
