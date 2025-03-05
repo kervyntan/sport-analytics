@@ -1,4 +1,5 @@
 from django.http import JsonResponse
+from django.db.models import Q
 from ninja import Router
 
 from sports_api.database.models import (
@@ -140,10 +141,10 @@ def get_team_players_stats(request):
 
         else:
             data = UnderstatTeamPlayerStats.objects.filter(season=year, team=team_title)
-        
+
         if position:
             data = data.filter(position=position)
-            
+
         data = list(data.values())
 
         return JsonResponse(
@@ -151,3 +152,27 @@ def get_team_players_stats(request):
         )
     except:
         return JsonResponse(error_response("Failed to retrieve team players stats."))
+
+
+@router.get("/search-players")
+def search_players(request):
+    try:
+        query_params = request.GET.dict()
+        name = query_params.get("name")
+        team = query_params.get("team", None)
+
+        players = UnderstatTeamPlayerStats.objects.filter(
+            lowercase_player_name__istartswith=name
+        )
+
+        if name:
+            players = players.filter(team=team)
+
+        data = list(players.values())
+
+        return JsonResponse(
+            success_response(data, "Successfully retrieved players' stats")
+        )
+
+    except:
+        return JsonResponse(error_response("Failed to find any player's stats."))
