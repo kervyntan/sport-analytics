@@ -179,6 +179,7 @@ class UnderstatTeamPlayerStats(BaseModel):
     '''
     xGChain = models.FloatField()
     xGBuildup = models.FloatField()
+    percent_shots_made_across_all_goals = models.FloatField(null=True) # added later on
 
     def __str__(self):
         return f"{self.player_name} - {self.team}"

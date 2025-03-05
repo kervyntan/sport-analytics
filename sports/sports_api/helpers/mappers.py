@@ -1,7 +1,10 @@
 from datetime import datetime
 from typing import List
 from sports_api.constants.understat_enum import UnderstatTimingEnum
-from sports_api.routes.understat.schemas.player_schema import InternalUnderstatPlayerSchema, UnderstatPlayerSchema
+from sports_api.routes.understat.schemas.player_schema import (
+    InternalUnderstatPlayerSchema,
+    UnderstatPlayerSchema,
+)
 from sports_api.routes.understat.schemas.team_schema import (
     InternalUnderstatTeamFormationSchema,
     InternalUnderstatTeamResultSchema,
@@ -205,9 +208,12 @@ def map_understat_team_stat_to_timing(
 
     return mapped_results
 
-def map_understat_team_players_to_internal(team_players: List[UnderstatPlayerSchema]) -> List[InternalUnderstatPlayerSchema]:
+
+def map_understat_team_players_to_internal(
+    team_players: List[UnderstatPlayerSchema],
+) -> List[InternalUnderstatPlayerSchema]:
     mapped_results = []
-    
+
     for team_player in team_players:
         result: InternalUnderstatPlayerSchema = {
             "public_id": team_player["id"],
@@ -229,8 +235,11 @@ def map_understat_team_players_to_internal(team_players: List[UnderstatPlayerSch
             "npxG": float(team_player["npxG"]),
             "xGChain": float(team_player["xGChain"]),
             "xGBuildup": float(team_player["xGBuildup"]),
+            "percent_shots_made_across_all_goals": calculate_percent_goals(
+                int(team_player["goals"]), int(team_player["shots"])
+            ),
         }
-        
+
         mapped_results.append(result)
-    
+
     return mapped_results

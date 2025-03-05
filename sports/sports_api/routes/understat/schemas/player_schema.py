@@ -44,6 +44,7 @@ class InternalUnderstatPlayerSchema(Schema):
     npxG: float
     xGChain: float
     xGBuildup: float
+    percent_shots_made_across_all_goals: float
 
 
 class UnderstatPlayerCreateSchema(Schema):
