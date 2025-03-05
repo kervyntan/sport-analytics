@@ -110,14 +110,38 @@ def get_team_players_stats(request):
         team_title = query_params.get("team_title")
         year = int(query_params.get("year"))
         sort_by_goals = query_params.get("sort[goals]")
-        
+        sort_by_percent_shots_made = query_params.get("sort[percent_shots_made]")
+        sort_by_xG = query_params.get("sort[xG]")
+
+        # One sort parameter allowed for now
+
         if sort_by_goals:
             sort_direction = "goals" if sort_by_goals.lower() == "asc" else "-goals"
             data = list(
-                UnderstatTeamPlayerStats.objects.filter(
-                    season=year, team=team_title
-                ).order_by(sort_direction).values()
+                UnderstatTeamPlayerStats.objects.filter(season=year, team=team_title)
+                .order_by(sort_direction)
+                .values()
             )
+
+        elif sort_by_percent_shots_made:
+            sort_direction = (
+                "percent_shots_made_across_all_goals"
+                if sort_by_percent_shots_made.lower() == "asc"
+                else "-percent_shots_made_across_all_goals"
+            )
+            data = list(
+                UnderstatTeamPlayerStats.objects.filter(season=year, team=team_title)
+                .order_by(sort_direction)
+                .values()
+            )
+        elif sort_by_percent_shots_made:
+            sort_direction = "xG" if sort_by_xG.lower() == "asc" else "-xG"
+            data = list(
+                UnderstatTeamPlayerStats.objects.filter(season=year, team=team_title)
+                .order_by(sort_direction)
+                .values()
+            )
+
         else:
             data = list(
                 UnderstatTeamPlayerStats.objects.filter(
